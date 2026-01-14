@@ -141,12 +141,17 @@ island_draw :: proc(island: DynamicIsland) {
 
 draw_rounded_rect :: proc(x: f32, y: f32, width: f32, height: f32, radius: f32, color: rl.Color) {
 	r := math.min(radius, math.min(width / 2, height / 2))
-	rl.DrawRectangle(i32(x + r), i32(y), i32(width - 2 * r), i32(height), color)
-	rl.DrawRectangle(i32(x), i32(y + r), i32(width), i32(height - 2 * r), color)
-	rl.DrawCircle(i32(x + r), i32(y + r), r, color)
-	rl.DrawCircle(i32(x + width - r), i32(y + r), r, color)
-	rl.DrawCircle(i32(x + r), i32(y + height - r), r, color)
-	rl.DrawCircle(i32(x + width - r), i32(y + height - r), r, color)
+	xi := i32(math.round(x))
+	yi := i32(math.round(y))
+	wi := i32(math.round(width))
+	hi := i32(math.round(height))
+	ri := math.round(r)
+	rl.DrawRectangle(xi + i32(ri), yi, wi - i32(2 * ri), hi, color)
+	rl.DrawRectangle(xi, yi + i32(ri), wi, hi - i32(2 * ri), color)
+	rl.DrawCircle(xi + i32(ri), yi + i32(ri), ri, color)
+	rl.DrawCircle(xi + wi - i32(ri), yi + i32(ri), ri, color)
+	rl.DrawCircle(xi + i32(ri), yi + hi - i32(ri), ri, color)
+	rl.DrawCircle(xi + wi - i32(ri), yi + hi - i32(ri), ri, color)
 }
 
 main :: proc() {
