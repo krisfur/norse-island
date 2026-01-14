@@ -1,3 +1,5 @@
 # Norse Island
 
-Dynamic Island like app inspired by iOS, in Odin with Raylib.
+Dynamic Island UI example inspired by iOS, in Odin with Raylib.
+
+![screencast](./screencast.gif)
