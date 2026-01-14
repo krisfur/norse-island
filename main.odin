@@ -84,7 +84,7 @@ island_update :: proc(island: ^DynamicIsland, wm: ^WindowManager) {
 		island.target_width = 150
 		island.target_height = 70
 
-		if wm.is_expanded && island.width <= 150.0 {
+		if wm.is_expanded && math.abs(island.width - 150.0) < 1.0 {
 			wm.is_expanded = false
 			wm.current_w = MIN_W
 			wm.current_h = MIN_H
@@ -96,18 +96,12 @@ island_update :: proc(island: ^DynamicIsland, wm: ^WindowManager) {
 			)
 
 			island.x = MIN_W / 2
-			island.width = 150.0
-			island.height = 70.0
 		}
 	}
 
 	dt := rl.GetFrameTime()
-	island.width = math.round(
-		math.lerp(island.width, island.target_width, island.animation_speed * dt),
-	)
-	island.height = math.round(
-		math.lerp(island.height, island.target_height, island.animation_speed * dt),
-	)
+	island.width = math.lerp(island.width, island.target_width, island.animation_speed * dt)
+	island.height = math.lerp(island.height, island.target_height, island.animation_speed * dt)
 }
 
 island_draw :: proc(island: DynamicIsland) {
