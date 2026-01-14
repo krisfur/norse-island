@@ -21,6 +21,8 @@ DynamicIsland :: struct {
 	corner_radius:   f32,
 	is_hovered:      bool,
 	animation_speed: f32,
+	should_expand:   bool, // Flag to expand after animation completes
+	should_collapse: bool, // Flag to collapse after animation completes
 }
 
 WindowManager :: struct {
@@ -42,7 +44,9 @@ island_new :: proc() -> DynamicIsland {
 		target_height = 70,
 		corner_radius = 35,
 		is_hovered = false,
-		animation_speed = 8.0,
+		animation_speed = 15.0,
+		should_expand = false,
+		should_collapse = false,
 	}
 }
 
@@ -63,45 +67,42 @@ island_update :: proc(island: ^DynamicIsland, wm: ^WindowManager) {
 	island.is_hovered = is_hovering
 
 	if island.is_hovered {
-		// Expand the island
 		island.target_width = 600
 		island.target_height = 400
-
-		if !wm.is_expanded {
-			wm.is_expanded = true
-			wm.current_w = MAX_W
-			wm.current_h = MAX_H
-
-			rl.SetWindowSize(wm.current_w, wm.current_h)
-			rl.SetWindowPosition(
-				get_centered_window_x(wm.monitor_w, wm.current_w),
-				wm.screen_y_pos,
-			)
-			island.x = MAX_W / 2
-		}
+		island.should_expand = true
+		island.should_collapse = false
 	} else {
-		// Collapse the island
 		island.target_width = 150
 		island.target_height = 70
-
-		if wm.is_expanded && math.abs(island.width - 150.0) < 1.0 {
-			wm.is_expanded = false
-			wm.current_w = MIN_W
-			wm.current_h = MIN_H
-
-			rl.SetWindowSize(wm.current_w, wm.current_h)
-			rl.SetWindowPosition(
-				get_centered_window_x(wm.monitor_w, wm.current_w),
-				wm.screen_y_pos,
-			)
-
-			island.x = MIN_W / 2
-		}
+		island.should_collapse = true
+		island.should_expand = false
 	}
 
 	dt := rl.GetFrameTime()
 	island.width = math.lerp(island.width, island.target_width, island.animation_speed * dt)
 	island.height = math.lerp(island.height, island.target_height, island.animation_speed * dt)
+
+	if island.should_expand && !wm.is_expanded && math.abs(island.width - 150.0) > 1.0 {
+		wm.is_expanded = true
+		wm.current_w = MAX_W
+		wm.current_h = MAX_H
+
+		rl.SetWindowSize(wm.current_w, wm.current_h)
+		rl.SetWindowPosition(get_centered_window_x(wm.monitor_w, wm.current_w), wm.screen_y_pos)
+		island.x = MAX_W / 2
+		island.should_expand = false
+	}
+
+	if island.should_collapse && wm.is_expanded && math.abs(island.width - 150.0) < 1.0 {
+		wm.is_expanded = false
+		wm.current_w = MIN_W
+		wm.current_h = MIN_H
+
+		rl.SetWindowSize(wm.current_w, wm.current_h)
+		rl.SetWindowPosition(get_centered_window_x(wm.monitor_w, wm.current_w), wm.screen_y_pos)
+		island.x = MIN_W / 2
+		island.should_collapse = false
+	}
 }
 
 island_draw :: proc(island: DynamicIsland) {
